@@ -38,3 +38,4 @@
 #import <AssimpKit/SCNAssimpScene.h>
 #import <AssimpKit/SCNNode+AssimpImport.h>
 #import <AssimpKit/SCNScene+AssimpImport.h>
+#import <AssimpKit/SCNTextureInfo.h>

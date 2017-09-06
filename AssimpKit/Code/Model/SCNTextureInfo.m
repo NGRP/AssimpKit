@@ -37,6 +37,8 @@
 #import "SCNTextureInfo.h"
 #import <ImageIO/ImageIO.h>
 #import <CoreImage/CoreImage.h>
+#include "assimp/scene.h"       // Output data structure
+
 
 @interface SCNTextureInfo ()
 

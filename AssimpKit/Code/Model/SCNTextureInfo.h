@@ -34,7 +34,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#include "assimp/scene.h"       // Output data structure
 
 @interface SCNTextureInfo : NSObject
 
