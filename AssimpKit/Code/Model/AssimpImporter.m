@@ -135,8 +135,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     {
         NSString *errorString =
             [NSString stringWithUTF8String:aiGetErrorString()];
-        ALog(@" Scene importing failed for filePath %@", filePath);
-        ALog(@" Scene importing failed with error %@", errorString);
+        //ALog(@" Scene importing failed for filePath %@", filePath);
+        //ALog(@" Scene importing failed with error %@", errorString);
         return nil;
     }
     // Now we can access the file's contents
@@ -163,7 +163,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 - (SCNAssimpScene *)makeSCNSceneFromAssimpScene:(const struct aiScene *)aiScene
                                          atPath:(NSString *)path
 {
-    DLog(@" Make an SCNScene");
     const struct aiNode *aiRootNode = aiScene->mRootNode;
     SCNAssimpScene *scene = [[SCNAssimpScene alloc] init];
     /*
@@ -214,7 +213,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     SCNNode *node = [[SCNNode alloc] init];
     const struct aiString *aiNodeName = &aiNode->mName;
     node.name = [NSString stringWithUTF8String:aiNodeName->data];
-    DLog(@" Creating node %@ with %d meshes", node.name, aiNode->mNumMeshes);
     int nVertices = [self findNumVerticesInNode:aiNode inScene:aiScene];
     node.geometry = [self makeSCNGeometryFromAssimpNode:aiNode
                                                 inScene:aiScene
@@ -241,8 +239,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     SCNMatrix4 scnMatrix = SCNMatrix4FromGLKMatrix4(glkNodeMatrix);
     node.transform = scnMatrix;
-    DLog(@" Node %@ position %f %f %f", node.name, aiNodeMatrix.a4,
-         aiNodeMatrix.b4, aiNodeMatrix.c4);
 
     for (int i = 0; i < aiNode->mNumChildren; i++)
     {
@@ -485,7 +481,6 @@ makeTextureGeometrySourceForNode:(const struct aiNode *)aiNode
         const struct aiMesh *aiMesh = aiScene->mMeshes[aiMeshIndex];
         if (aiMesh->mTextureCoords[0] != NULL)
         {
-            DLog(@"  Getting texture coordinates");
             for (int j = 0; j < aiMesh->mNumVertices; j++)
             {
                 float x = aiMesh->mTextureCoords[0][j].x;
@@ -779,9 +774,6 @@ makeIndicesGeometryElementForMeshIndex:(int)aiMeshIndex
             aiScene->mMaterials[aiMesh->mMaterialIndex];
         struct aiString name;
         aiGetMaterialString(aiMaterial, AI_MATKEY_NAME, &name);
-        DLog(
-            @" Material name is %@",
-            [NSString stringWithUTF8String:(const char *_Nonnull) & name.data]);
         SCNMaterial *material = [SCNMaterial material];
         int kTextureTypes = 10;
         int textureTypes[10] = {
@@ -804,9 +796,6 @@ makeIndicesGeometryElementForMeshIndex:(int)aiMeshIndex
         };
 
         for(int i = 0; i < kTextureTypes; i++) {
-            DLog(@" Loading texture type : %@",
-                 [textureTypeNames
-                     valueForKey:[NSNumber numberWithInt:i].stringValue]);
             SCNTextureInfo *textureInfo =
                 [[SCNTextureInfo alloc] initWithMeshIndex:aiMeshIndex
                                               textureType:textureTypes[i]
@@ -819,38 +808,38 @@ makeIndicesGeometryElementForMeshIndex:(int)aiMeshIndex
             [textureInfo releaseContents];
         }
 
-        DLog(@"+++ Loading multiply color");
+        
         [self applyMultiplyPropertyForMaterial:aiMaterial
                                withSCNMaterial:material];
-        DLog(@"+++ Loading blend mode");
+        
         unsigned int blendMode = 0;
         unsigned int *max;
         aiGetMaterialIntegerArray(aiMaterial, AI_MATKEY_BLEND_FUNC,
                                   (int *)&blendMode, max);
         if (blendMode == aiBlendMode_Default)
         {
-            DLog(@" Using alpha blend mode");
+            
             material.blendMode = SCNBlendModeAlpha;
         }
         else if (blendMode == aiBlendMode_Additive)
         {
-            DLog(@" Using add blend mode");
+            
             material.blendMode = SCNBlendModeAdd;
         }
-        DLog(@"+++ Loading cull/double sided mode");
+        
         /**
      FIXME: The cull mode works only on iOS. Not on OSX.
      Hence has been defaulted to Cull Back.
      USE AI_MATKEY_TWOSIDED to get the cull mode.
      */
         material.cullMode = SCNCullBack;
-        DLog(@"+++ Loading shininess");
+        
         int shininess;
         aiGetMaterialIntegerArray(aiMaterial, AI_MATKEY_BLEND_FUNC,
                                   (int *)&shininess, max);
-        DLog(@"   shininess: %d", shininess);
+        
             //material.shininess = shininess;
-        DLog(@"+++ Loading shading model");
+        
         /**
      FIXME: The shading mode works only on iOS for iPhone.
      Does not work on iOS for iPad and OS X.
@@ -920,7 +909,7 @@ makeIndicesGeometryElementForMeshIndex:(int)aiMeshIndex
     const struct aiColor3D aiColor = aiLight->mColorSpecular;
     if (aiColor.r != 0 && aiColor.g != 0 && aiColor.b != 0)
     {
-        DLog(@" Setting color: %f %f %f", aiColor.r, aiColor.g, aiColor.b);
+        
         CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
         CGFloat components[4] = {aiColor.r, aiColor.g, aiColor.b, 1.0};
         CGColorRef cgGolor = CGColorCreate(space, components);
@@ -945,7 +934,7 @@ makeIndicesGeometryElementForMeshIndex:(int)aiMeshIndex
     const struct aiColor3D aiColor = aiLight->mColorSpecular;
     if (aiColor.r != 0 && aiColor.g != 0 && aiColor.b != 0)
     {
-        DLog(@" Setting color: %f %f %f", aiColor.r, aiColor.g, aiColor.b);
+       
         CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
         CGFloat components[4] = {aiColor.r, aiColor.g, aiColor.b, 1.0};
         CGColorRef cgGolor = CGColorCreate(space, components);
@@ -977,7 +966,7 @@ makeIndicesGeometryElementForMeshIndex:(int)aiMeshIndex
     const struct aiColor3D aiColor = aiLight->mColorSpecular;
     if (aiColor.r != 0 && aiColor.g != 0 && aiColor.b != 0)
     {
-        DLog(@" Setting color: %f %f %f", aiColor.r, aiColor.g, aiColor.b);
+        
         CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
         CGFloat components[4] = {aiColor.r, aiColor.g, aiColor.b, 1.0};
         CGColorRef cgGolor = CGColorCreate(space, components);
@@ -1021,33 +1010,20 @@ makeIndicesGeometryElementForMeshIndex:(int)aiMeshIndex
             stringWithUTF8String:(const char *_Nonnull) & aiLightNodeName.data];
         if ([nodeName isEqualToString:lightNodeName])
         {
-            DLog(@"### Creating light for node %@", nodeName);
-            DLog(@"    ambient     %f %f %f ", aiLight->mColorAmbient.r,
-                 aiLight->mColorAmbient.g, aiLight->mColorAmbient.b);
-            DLog(@"    diffuse     %f %f %f ", aiLight->mColorDiffuse.r,
-                 aiLight->mColorDiffuse.g, aiLight->mColorDiffuse.b);
-            DLog(@"    specular    %f %f %f ", aiLight->mColorSpecular.r,
-                 aiLight->mColorSpecular.g, aiLight->mColorSpecular.b);
-            DLog(@"    inner angle %f", aiLight->mAngleInnerCone);
-            DLog(@"    outer angle %f", aiLight->mAngleOuterCone);
-            DLog(@"    att const   %f", aiLight->mAttenuationConstant);
-            DLog(@"    att linear  %f", aiLight->mAttenuationLinear);
-            DLog(@"    att quad    %f", aiLight->mAttenuationQuadratic);
-            DLog(@"    position    %f %f %f", aiLight->mPosition.x,
-                 aiLight->mPosition.y, aiLight->mPosition.z);
+           
             if (aiLight->mType == aiLightSource_DIRECTIONAL)
             {
-                DLog(@"    type        Directional");
+               
                 return [self makeSCNLightTypeDirectionalForAssimpLight:aiLight];
             }
             else if (aiLight->mType == aiLightSource_POINT)
             {
-                DLog(@"    type        Omni");
+                
                 return [self makeSCNLightTypePointForAssimpLight:aiLight];
             }
             else if (aiLight->mType == aiLightSource_SPOT)
             {
-                DLog(@"    type        Spot");
+                
                 return [self makeSCNLightTypeSpotForAssimpLight:aiLight];
             }
         }
@@ -1244,8 +1220,7 @@ makeIndicesGeometryElementForMeshIndex:(int)aiMeshIndex
     for (SCNNode *boneNode in boneNodes)
     {
         int depth = [self findDepthOfNodeFromRoot:boneNode];
-        DLog(@" bone with depth is (min depth): %@ -> %d ( %d )", boneNode.name,
-             depth, minDepth);
+
         if (minDepth == -1 || (depth <= minDepth))
         {
             minDepth = depth;
@@ -1261,7 +1236,7 @@ makeIndicesGeometryElementForMeshIndex:(int)aiMeshIndex
     }
     NSString *minDepthKey = [NSNumber numberWithInt:minDepth].stringValue;
     NSArray *minDepthNodes = [nodeDepths valueForKey:minDepthKey];
-    DLog(@" min depth nodes are: %@", minDepthNodes);
+    
     SCNNode *skeletonRootNode = [minDepthNodes objectAtIndex:0];
     if (minDepthNodes.count > 1)
     {
@@ -1411,7 +1386,7 @@ makeBoneWeightsGeometrySourceAtNode:(const struct aiNode *)aiNode
             for (NSNumber *weight in weights)
             {
                 nodeGeometryWeights[weightCounter++] = [weight floatValue];
-                // DLog(@" adding weight: %f", weight.floatValue);
+                
             }
             for (int k = 0; k < zeroWeights; k++)
             {
@@ -1420,7 +1395,7 @@ makeBoneWeightsGeometrySourceAtNode:(const struct aiNode *)aiNode
         }
     }
 
-    DLog(@" weight counter %d", weightCounter);
+    
     assert(weightCounter == nVertices * maxWeights);
 
     SCNGeometrySource *boneWeightsSource = [SCNGeometrySource
@@ -1455,7 +1430,7 @@ makeBoneIndicesGeometrySourceAtNode:(const struct aiNode *)aiNode
                          maxWeights:(int)maxWeights
                           boneNames:(NSArray *)boneNames
 {
-    DLog(@" |--| Making bone indices geometry source: %@", boneNames);
+    //DLog(@" |--| Making bone indices geometry source: %@", boneNames);
     short nodeGeometryBoneIndices[nVertices * maxWeights];
     int indexCounter = 0;
 
@@ -1506,7 +1481,7 @@ makeBoneIndicesGeometrySourceAtNode:(const struct aiNode *)aiNode
             {
                 nodeGeometryBoneIndices[indexCounter++] =
                     [boneIndex shortValue];
-                // DLog(@"  adding bone index: %d", boneIndex.shortValue);
+                // //DLog(@"  adding bone index: %d", boneIndex.shortValue);
             }
             for (int k = 0; k < zeroIndices; k++)
             {
@@ -1544,21 +1519,18 @@ makeBoneIndicesGeometrySourceAtNode:(const struct aiNode *)aiNode
 - (void)buildSkeletonDatabaseForScene:(SCNAssimpScene *)scene
 {
     self.uniqueBoneNames = [[NSSet setWithArray:self.boneNames] allObjects];
-    DLog(@" |--| bone names %lu: %@", self.boneNames.count, self.boneNames);
-    DLog(@" |--| unique bone names %lu: %@", self.uniqueBoneNames.count,
-         self.uniqueBoneNames);
+    //DLog(@" |--| bone names %lu: %@", self.boneNames.count, self.boneNames);
+    //DLog(@" |--| unique bone names %lu: %@", self.uniqueBoneNames.count, self.uniqueBoneNames);
     self.uniqueBoneNodes =
         [self findBoneNodesInScene:scene forBones:self.uniqueBoneNames];
-    DLog(@" |--| unique bone nodes %lu: %@", self.uniqueBoneNodes.count,
-         self.uniqueBoneNodes);
+    //DLog(@" |--| unique bone nodes %lu: %@", self.uniqueBoneNodes.count, self.uniqueBoneNodes);
     self.uniqueBoneTransforms =
         [self getTransformsForBones:self.uniqueBoneNames
                      fromTransforms:self.boneTransforms];
-    DLog(@" |--| unique bone transforms %lu: %@",
-         self.uniqueBoneTransforms.count, self.uniqueBoneTransforms);
+    //DLog(@" |--| unique bone transforms %lu: %@", self.uniqueBoneTransforms.count, self.uniqueBoneTransforms);
     self.skeleton = [self findSkeletonNodeFromBoneNodes:self.uniqueBoneNodes];
     [scene setSkeletonNode:self.skeleton];
-    DLog(@" |--| skeleton bone is : %@", self.skeleton);
+    //DLog(@" |--| skeleton bone is : %@", self.skeleton);
 }
 
 /**
@@ -1580,9 +1552,7 @@ makeBoneIndicesGeometrySourceAtNode:(const struct aiNode *)aiNode
     {
         int nVertices = [self findNumVerticesInNode:aiNode inScene:aiScene];
         int maxWeights = [self findMaxWeightsForNode:aiNode inScene:aiScene];
-        DLog(@" |--| Making Skinner for node: %@ vertices: %d max-weights: %d "
-             @"nBones: %d",
-             nodeName, nVertices, maxWeights, nBones);
+        //DLog(@" |--| Making Skinner for node: %@ vertices: %d max-weights: %d " @"nBones: %d", nodeName, nVertices, maxWeights, nBones);
 
         SCNGeometrySource *boneWeights =
             [self makeBoneWeightsGeometrySourceAtNode:aiNode
@@ -1605,7 +1575,7 @@ makeBoneIndicesGeometrySourceAtNode:(const struct aiNode *)aiNode
                                     boneWeights:boneWeights
                                     boneIndices:boneIndices];
         skinner.skeleton = self.skeleton;
-        DLog(@" assigned skinner %@ skeleton: %@", skinner, skinner.skeleton);
+        //DLog(@" assigned skinner %@ skeleton: %@", skinner, skinner.skeleton);
         node.skinner = skinner;
     }
 
@@ -1645,23 +1615,19 @@ makeBoneIndicesGeometrySourceAtNode:(const struct aiNode *)aiNode
                         withScene:(SCNAssimpScene *)scene
                            atPath:(NSString *)path
 {
-    DLog(@" ========= Number of animations in scene: %d",
-         aiScene->mNumAnimations);
+    //DLog(@" ========= Number of animations in scene: %d", aiScene->mNumAnimations);
     for (int i = 0; i < aiScene->mNumAnimations; i++)
     {
-        DLog(@"--- Animation data for animation at index: %d", i);
+        //DLog(@"--- Animation data for animation at index: %d", i);
         const struct aiAnimation *aiAnimation = aiScene->mAnimations[i];
         NSString *animIndex = [@"-"
             stringByAppendingString:[NSNumber numberWithInt:i + 1].stringValue];
         NSString *animName = [[[path lastPathComponent]
             stringByDeletingPathExtension] stringByAppendingString:animIndex];
-        DLog(@" Generated animation name: %@", animName);
+        //DLog(@" Generated animation name: %@", animName);
         NSMutableDictionary *currentAnimation =
             [[NSMutableDictionary alloc] init];
-        DLog(@" This animation %@ has %d channels with duration %f ticks "
-             @"per sec: %f",
-             animName, aiAnimation->mNumChannels, aiAnimation->mDuration,
-             aiAnimation->mTicksPerSecond);
+        
         float duration;
         if (aiAnimation->mTicksPerSecond != 0)
         {
@@ -1676,11 +1642,7 @@ makeBoneIndicesGeometrySourceAtNode:(const struct aiNode *)aiNode
             const struct aiNodeAnim *aiNodeAnim = aiAnimation->mChannels[j];
             const struct aiString *aiNodeName = &aiNodeAnim->mNodeName;
             NSString *name = [NSString stringWithUTF8String:aiNodeName->data];
-            DLog(@" The channel %@ has data for %d position, %d rotation, "
-                 @"%d scale "
-                 @"keyframes",
-                 name, aiNodeAnim->mNumPositionKeys,
-                 aiNodeAnim->mNumRotationKeys, aiNodeAnim->mNumScalingKeys);
+            
 
             // create a lookup for all animation keys
             NSMutableDictionary *channelKeys =

@@ -144,7 +144,6 @@
         self.textureType = aiTextureType;
         self.materialName =
             [NSString stringWithUTF8String:(const char *_Nonnull) & name.data];
-        DLog(@" Material name is %@", self.materialName);
         [self checkTextureTypeForMaterial:aiMaterial
                           withTextureType:aiTextureType
                                   inScene:aiScene
@@ -170,8 +169,6 @@
                              atPath:(NSString *)path
 {
     int nTextures = aiGetMaterialTextureCount(aiMaterial, aiTextureType);
-    DLog(@" has textures : %d", nTextures);
-    DLog(@" has embedded textures: %d", aiScene->mNumTextures);
     if(nTextures == 0 && aiScene->mNumTextures == 0) {
         self.applyColor = true;
         [self extractColorForMaterial:aiMaterial
@@ -191,7 +188,6 @@
                                  NULL, NULL, NULL, NULL);
             NSString *texFilePath = [NSString
                 stringWithUTF8String:(const char *_Nonnull) & aiPath.data];
-            DLog(@" tex file path is: %@", texFilePath);
             NSString *texFileName = [texFilePath lastPathComponent];
             
             if(texFileName == nil || [texFileName isEqualToString:@""]) {
@@ -204,18 +200,15 @@
                 self.applyEmbeddedTexture = true;
                 self.embeddedTextureIndex =
                 [texFilePath substringFromIndex:1].intValue;
-                DLog(@" Embedded texture index : %d", self.embeddedTextureIndex);
                 [self generateCGImageForEmbeddedTextureAtIndex:self.embeddedTextureIndex
                     inScene:aiScene];
             }
             else {
                 self.applyExternalTexture = true;
-                DLog(@"  tex file name is %@", texFileName);
                 NSString *sceneDir = [[path stringByDeletingLastPathComponent]
                     stringByAppendingString:@"/"];
                 self.externalTexturePath =
                     [sceneDir stringByAppendingString:texFileName];
-                DLog(@"  tex path is %@", self.externalTexturePath);
                 [self generateCGImageForExternalTextureAtPath:
                           self.externalTexturePath];
             }
@@ -233,7 +226,6 @@
 - (void)generateCGImageForEmbeddedTextureAtIndex:(int)index
                                          inScene:(const struct aiScene *)aiScene
 {
-    DLog(@" Generating embedded texture ");
     const struct aiTexture *aiTexture = aiScene->mTextures[index];
     NSData *imageData = [NSData dataWithBytes:aiTexture->pcData
                                        length:aiTexture->mWidth];
@@ -241,12 +233,10 @@
         CGDataProviderCreateWithCFData((CFDataRef)imageData);
     NSString* format = [NSString stringWithUTF8String:aiTexture->achFormatHint];
     if([format isEqualToString:@"png"]) {
-        DLog(@" Created png embedded texture ");
         self.image = CGImageCreateWithPNGDataProvider(
             self.imageDataProvider, NULL, true, kCGRenderingIntentDefault);
     }
     if([format isEqualToString:@"jpg"]) {
-        DLog(@" Created jpg embedded texture");
         self.image = CGImageCreateWithJPEGDataProvider(
             self.imageDataProvider, NULL, true, kCGRenderingIntentDefault);
     }
@@ -260,7 +250,6 @@
  */
 -(void)generateCGImageForExternalTextureAtPath:(NSString*)path
 {
-    DLog(@" Generating external texture");
     NSURL *imageURL = [NSURL fileURLWithPath:path];
     self.imageSource = CGImageSourceCreateWithURL((CFURLRef)imageURL, NULL);
     self.image = CGImageSourceCreateImageAtIndex(self.imageSource, 0, NULL);
@@ -269,7 +258,6 @@
 -(void)extractColorForMaterial:(const struct aiMaterial *)aiMaterial
                       withTextureType:(enum aiTextureType)aiTextureType
 {
-    DLog(@" Extracting color");
     struct aiColor4D color;
     color.r = 0.0f;
     color.g = 0.0f;

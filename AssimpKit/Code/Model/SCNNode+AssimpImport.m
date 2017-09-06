@@ -145,8 +145,6 @@
     else
     {
         // no root exists, so add animation data to all bones
-        DLog(@" no root: %@ %d", rootAnimNode.parentNode,
-             rootAnimNode.parentNode.childNodes.count);
         [self addAnimationFromNode:rootAnimNode.parentNode
                             forKey:animKey
                       withSettings:settings
@@ -319,7 +317,7 @@
     [self enumerateChildNodesUsingBlock:^(SCNNode *child, BOOL *stop) {
       if (child.animationKeys.count > 0)
       {
-          DLog(@" found anim: %@ at node %@", child.animationKeys, child);
+          //DLog(@" found anim: %@ at node %@", child.animationKeys, child);
           rootAnimNode = child;
           *stop = YES;
       }

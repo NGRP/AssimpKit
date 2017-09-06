@@ -62,8 +62,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                      error:&error];
     if (error)
     {
-        ALog(@" Error loading valid-extensions.txt file: %@ ",
-             error.description);
         return nil;
     }
     NSArray *validExts = [

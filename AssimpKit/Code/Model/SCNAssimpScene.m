@@ -131,8 +131,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         CAKeyframeAnimation *quatAnim =
             [channelKeys valueForKey:@"orientation"];
         CAKeyframeAnimation *scaleAnim = [channelKeys valueForKey:@"scale"];
-        DLog(@" for node %@ pos anim is %@ quat anim is %@", boneNode, posAnim,
-             quatAnim);
+        //DLog(@" for node %@ pos anim is %@ quat anim is %@", boneNode, posAnim, quatAnim);
         NSString *nodeKey = [@"/node-" stringByAppendingString:nodeName];
         if (posAnim)
         {
